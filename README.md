@@ -24,9 +24,7 @@ Copy only the token string. Do not add Bearer, quotes, or the redacted character
 
 In FastGPT's installed plugin configuration, enter the copied key in **Ace Data Cloud API key**. Keep the key out of prompts and workflow exports.
 
-Create a blank workflow and connect:
-
-**Start → Ace Data Cloud GPT Image / Generate image → Ace Data Cloud GPT Image / Retrieve task → Output**.
+In **Studio → Create Agent → Workflow**, start with **Process starts**. From **System Tools**, add **Ace Data Cloud GPT Image / Generate image** and **Retrieve task**. Activate both tools with the configured **System secret**. Connect **Process starts → Generate image → Retrieve task → Basic / Assigned Reply**.
 
 For **Generate image**, use these first-run values from [examples/generate.json](examples/generate.json):
 
@@ -37,11 +35,21 @@ For **Generate image**, use these first-run values from [examples/generate.json]
 | Size | 1024x1024 |
 | Quality | low |
 
-Bind **Retrieve task → Task ID** to the **Task ID** output of **Generate image** using FastGPT's variable picker. Do not type the node name as text. In **Output**, expose **status**, **success**, **taskId**, and **mediaUrls** from **Retrieve task**.
+For **Retrieve task → Task ID**, choose **Variable Reference → Generate image → Task ID**; do not type the node name. In **Assigned Reply**, insert **status**, **success**, **taskId**, and **mediaUrls** from Retrieve task with the variable picker. Choose **Save Only**, then **Run Preview** once.
 
-Run the workflow once. If status is **pending**, save its taskId. Run only **Retrieve task** with that same ID later, either directly or in a separate **Start → Retrieve task → Output** workflow. Do not rerun the full workflow to poll: that would buy another image.
+If status is **pending**, save its taskId. To check later, create a separate **Process starts → Retrieve task → Basic / Assigned Reply** workflow and enter that same ID. Run this lookup in **Run Preview**. Do not rerun the generation workflow to poll: that would buy another image.
 
 When status is **succeeded** and success is **true**, open a URL in mediaUrls. In Ace Data Cloud request history, match the task ID to one generation and its Credits charge. The USD value of Credits depends on your current package rate.
+
+This local FastGPT run submitted **one new GPT Image task**. The first preview returned its task ID while the image was pending; a separate lookup of that same ID returned the completed image.
+
+![Installed plugin with Normal status and Configured system key](assets/fastgpt-installed-configured.png)
+
+![Complete FastGPT generation workflow](assets/fastgpt-generation-workflow.png)
+
+![First preview returned a pending task ID](assets/fastgpt-pending-result.png)
+
+![Separate lookup returned the completed image URL](assets/fastgpt-lookup-result.png)
 
 ### 4. Copyable local example without a key in the repository
 
