@@ -1,5 +1,5 @@
 {
-  "name": "acedata-gpt-image-fastgpt",
+  "name": "fastgpt-plugin-acedata-gpt-image",
   "version": "0.1.0",
   "description": "Ace Data Cloud GPT Image tools for FastGPT",
   "type": "module",
