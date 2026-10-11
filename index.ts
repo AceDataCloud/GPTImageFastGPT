@@ -7,7 +7,7 @@ import {
 } from '@fastgpt-plugin/sdk-factory';
 import z from 'zod';
 
-import { generateImage, retrieveTask } from './src/client.ts';
+import { editImage, generateImage, retrieveTask } from './src/client.ts';
 
 const secretSchema = z.object({
   apiKey: z.string().min(1).meta({
@@ -41,13 +41,34 @@ const generateHandler = createToolHandler({
     size: z.enum(['1024x1024', '1024x1536', '1536x1024']).default('1024x1024').meta({
       title: 'Size'
     } satisfies InputSchemaMetaType),
-    quality: z.enum(['low', 'medium', 'high']).default('low').meta({
+    quality: z.enum(['auto', 'low', 'medium', 'high']).default('low').meta({
       title: 'Quality'
+    } satisfies InputSchemaMetaType),
+    count: z.number().int().min(1).max(10).default(1).meta({
+      title: 'Image count',
+      description: 'Each output image may be billed. Keep 1 for the first run.'
     } satisfies InputSchemaMetaType)
   }),
   outputSchema,
   secretSchema,
   handler: async (input, ctx) => generateImage(input, ctx.secrets?.apiKey ?? '')
+});
+
+const editHandler = createToolHandler({
+  inputSchema: z.object({
+    imageUrl: z.string().url().startsWith('https://').meta({
+      title: 'Reference image URL',
+      description: 'An accessible HTTPS image that you may edit.'
+    } satisfies InputSchemaMetaType),
+    prompt: z.string().trim().min(1).max(32000).meta({ title: 'Edit prompt', isToolParam: true } satisfies InputSchemaMetaType),
+    model: z.enum(['gpt-image-2', 'gpt-image-1.5', 'gpt-image-1']).default('gpt-image-2').meta({ title: 'Model' } satisfies InputSchemaMetaType),
+    size: z.enum(['1024x1024', '1024x1536', '1536x1024']).default('1024x1024').meta({ title: 'Size' } satisfies InputSchemaMetaType),
+    quality: z.enum(['auto', 'low', 'medium', 'high']).default('low').meta({ title: 'Quality' } satisfies InputSchemaMetaType),
+    count: z.number().int().min(1).max(10).default(1).meta({ title: 'Image count' } satisfies InputSchemaMetaType)
+  }),
+  outputSchema,
+  secretSchema,
+  handler: async (input, ctx) => editImage(input, ctx.secrets?.apiKey ?? '')
 });
 
 const retrieveHandler = createToolHandler({
@@ -66,13 +87,13 @@ const retrieveHandler = createToolHandler({
 export default defineToolSet({
   manifest: {
     pluginId: 'acedataGptImage',
-    version: '0.1.0',
+    version: '0.2.0',
     name: { en: 'Ace Data Cloud GPT Image', 'zh-CN': 'Ace Data Cloud GPT 图像' },
     description: {
       en: 'Generate GPT images and retrieve the same task in Ace Data Cloud.',
       'zh-CN': '通过 Ace Data Cloud 生成 GPT 图像并查询同一任务。'
     },
-    versionDescription: { en: 'Initial release', 'zh-CN': '首次发布' },
+    versionDescription: { en: 'Align API limits, task status and edit actions', 'zh-CN': '对齐 API 限制和任务状态处理' },
     author: 'Ace Data Cloud',
     repoUrl: 'https://github.com/AceDataCloud/GPTImageFastGPT',
     tutorialUrl: 'https://github.com/AceDataCloud/GPTImageFastGPT#quick-start',
@@ -90,6 +111,13 @@ export default defineToolSet({
       },
       toolDescription: 'Generate one image. Do not call again to check a pending task.',
       handler: generateHandler
+    },
+    {
+      id: 'editImage',
+      name: { en: 'Edit image', 'zh-CN': '编辑图像' },
+      description: { en: 'Edit one authorized image and return its task ID.', 'zh-CN': '编辑一张经授权的图片并返回任务 ID。' },
+      toolDescription: 'Submit one edit. Use Retrieve task to check its ID without editing again.',
+      handler: editHandler
     },
     {
       id: 'retrieveTask',

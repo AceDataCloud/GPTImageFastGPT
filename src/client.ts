@@ -11,6 +11,7 @@ type JsonObject = Record<string, unknown>;
 const BASE_URL = 'https://api.acedata.cloud';
 const succeeded = new Set(['succeeded', 'success', 'completed', 'complete', 'finished']);
 const failed = new Set(['failed', 'failure', 'error', 'cancelled', 'canceled', 'rejected']);
+const pending = new Set(['pending', 'queued', 'processing', 'running', 'in_progress', 'accepted', 'submitted', 'waiting']);
 const mediaKeys = new Set(['url', 'image_url', 'media_url', 'file_url']);
 
 function object(value: unknown): JsonObject | null {
@@ -58,16 +59,15 @@ export function normalizeTask(body: unknown, fallbackTaskId = ''): TaskResult {
   );
   const taskId = string(data.task_id) || string(data.id) || string(task?.id) || string(response?.task_id) || fallbackTaskId;
   const traceId = string(data.trace_id) || string(task?.trace_id) || string(response?.trace_id);
-  const state = (string(data.status) || string(task?.status) || string(response?.status)).toLowerCase();
-  const urls = imageUrls(response ?? data);
+  const states = [data.status, data.state, task?.status, task?.state, response?.status, response?.state]
+    .filter((value): value is string => typeof value === 'string')
+    .map((value) => value.toLowerCase());
+  const urls = [...new Set([...imageUrls(data), ...imageUrls(response)])];
   const unfinished = 'finished_at' in data && data.finished_at == null;
-  const status: TaskResult['status'] = unfinished
-    ? 'pending'
-    : failed.has(state) || data.success === false || response?.success === false || Boolean(data.error) || Boolean(response?.error)
-      ? 'failed'
-      : succeeded.has(state) || response?.success === true || urls.length > 0
-        ? 'succeeded'
-        : 'pending';
+  const hasFailure = states.some((state) => failed.has(state)) || data.success === false || response?.success === false || Boolean(data.error) || Boolean(response?.error);
+  const isPending = unfinished || states.some((state) => pending.has(state));
+  const hasSuccess = states.some((state) => succeeded.has(state)) || response?.success === true || urls.length > 0;
+  const status: TaskResult['status'] = hasFailure ? 'failed' : isPending ? 'pending' : hasSuccess ? 'succeeded' : 'pending';
   return { taskId, traceId, status, success: status === 'succeeded', mediaUrls: status === 'succeeded' ? urls : [] };
 }
 
@@ -101,7 +101,7 @@ async function request(path: string, apiKey: string, payload: JsonObject): Promi
 }
 
 export async function generateImage(
-  input: { prompt: string; model: string; size: string; quality: string },
+  input: { prompt: string; model: string; size: string; quality: string; count: number },
   apiKey: string
 ): Promise<TaskResult> {
   const body = await request('/openai/images/generations', apiKey, {
@@ -109,13 +109,34 @@ export async function generateImage(
     model: input.model,
     size: input.size,
     quality: input.quality,
-    n: 1,
+    n: input.count,
     async: true,
     response_format: 'url'
   });
   const result = normalizeTask(body);
   if (result.status === 'pending' && !result.taskId) {
     throw new Error('Generation was accepted without a task ID. Check request history before retrying.');
+  }
+  return result;
+}
+
+export async function editImage(
+  input: { prompt: string; imageUrl: string; model: string; size: string; quality: string; count: number },
+  apiKey: string
+): Promise<TaskResult> {
+  const body = await request('/openai/images/edits', apiKey, {
+    image: input.imageUrl,
+    prompt: input.prompt,
+    model: input.model,
+    size: input.size,
+    quality: input.quality,
+    n: input.count,
+    async: true,
+    response_format: 'url'
+  });
+  const result = normalizeTask(body);
+  if (result.status === 'pending' && !result.taskId) {
+    throw new Error('Edit was accepted without a task ID. Check request history before retrying.');
   }
   return result;
 }

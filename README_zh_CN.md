@@ -12,7 +12,7 @@
 ![Ace Data Cloud 的真实应用密钥界面，密钥已遮挡](assets/get-api-key-en.png)
 
 3. 在 FastGPT 的插件配置中，将密钥填入 **Ace Data Cloud API key**。只填令牌本身，不加 Bearer、引号或空格。不要放进提示词或工作流导出。
-4. 在 **Studio → Create Agent → Workflow** 新建工作流。从 **System Tools** 添加 **Ace Data Cloud GPT Image / Generate image** 和 **Retrieve task**，激活两个工具并选择已配置的 **System secret**。连接 **Process starts → Generate image → Retrieve task → Basic / Assigned Reply**。生成工具填写 examples/generate.json 中的四项。查询工具的 **Task ID** 选择 **Variable Reference → Generate image → Task ID**，不要手动输入节点名称。
+4. 在 **Studio → Create Agent → Workflow** 新建工作流。从 **System Tools** 添加 **Ace Data Cloud GPT Image / Generate image** 和 **Retrieve task**，激活两个工具并选择已配置的 **System secret**。连接 **Process starts → Generate image → Retrieve task → Basic / Assigned Reply**。生成工具填写 examples/generate.json 中的五项（Image count 保持 1）。查询工具的 **Task ID** 选择 **Variable Reference → Generate image → Task ID**，不要手动输入节点名称。
 5. 在 **Assigned Reply** 中用变量选择器插入查询工具的 **status、success、taskId、mediaUrls**。选择 **Save Only**，再用 **Run Preview** 执行一次。若 status 是 pending，保存 taskId；之后新建 **Process starts → Retrieve task → Basic / Assigned Reply** 工作流，只填同一个 Task ID 查询，直到 status=succeeded 且 success=true，再打开 mediaUrls 中的图片。不要重跑生成工作流来轮询。
 6. 到 Ace Data Cloud 控制台核对该 taskId 对应的一次调用和 Credits 扣费。Credits 与 USD 的换算以当前套餐价格为准。
 
@@ -25,6 +25,8 @@
 ![首次预览返回待完成的 Task ID](assets/fastgpt-pending-result.png)
 
 ![单独查询同一任务后返回图片 URL](assets/fastgpt-lookup-result.png)
+
+编辑时选择 **Edit image**，填入一张经授权且可访问的 HTTPS 参考图片 URL。编辑会单独提交并可能计费；把返回的 Task ID 接到同一个 **Retrieve task** 查询工具。
 
 ## 本地可复制的无密钥示例
 

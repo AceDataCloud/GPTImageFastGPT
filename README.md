@@ -34,6 +34,7 @@ For **Generate image**, use these first-run values from [examples/generate.json]
 | Model | gpt-image-2 |
 | Size | 1024x1024 |
 | Quality | low |
+| Image count | 1 |
 
 For **Retrieve task → Task ID**, choose **Variable Reference → Generate image → Task ID**; do not type the node name. In **Assigned Reply**, insert **status**, **success**, **taskId**, and **mediaUrls** from Retrieve task with the variable picker. Choose **Save Only**, then **Run Preview** once.
 
@@ -50,6 +51,8 @@ This local FastGPT run submitted **one new GPT Image task**. The first preview r
 ![First preview returned a pending task ID](assets/fastgpt-pending-result.png)
 
 ![Separate lookup returned the completed image URL](assets/fastgpt-lookup-result.png)
+
+For edits, **Edit image** accepts one authorized HTTPS reference image URL. It returns a task ID; connect that ID to the same **Retrieve task** tool. Editing is a separate billable submission.
 
 ### 4. Copyable local example without a key in the repository
 

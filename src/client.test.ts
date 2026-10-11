@@ -1,5 +1,5 @@
 import { afterEach, expect, test, vi } from 'vitest';
-import { generateImage, normalizeTask, retrieveTask } from './client.js';
+import { editImage, generateImage, normalizeTask, retrieveTask } from './client.js';
 
 afterEach(() => vi.unstubAllGlobals());
 
@@ -7,7 +7,7 @@ test('accepted generation returns a task ID without claiming success', async () 
   const fetch = vi.fn().mockResolvedValue(new Response(JSON.stringify({ task_id: 'task-1', status: 'pending' }), { status: 200 }));
   vi.stubGlobal('fetch', fetch);
   const result = await generateImage(
-    { prompt: 'One blue sphere', model: 'gpt-image-2', size: '1024x1024', quality: 'low' },
+    { prompt: 'One blue sphere', model: 'gpt-image-2', size: '1024x1024', quality: 'low', count: 1 },
     'test-key'
   );
   expect(result).toEqual({ taskId: 'task-1', traceId: '', status: 'pending', success: false, mediaUrls: [] });
@@ -51,4 +51,60 @@ test('HTTP errors do not expose API payloads or secrets', async () => {
   )));
   await expect(retrieveTask('task-1', 'private-key')).rejects.toThrow('HTTP 403');
   await expect(retrieveTask('task-1', 'Bearer private-key')).rejects.toThrow('without the Bearer prefix');
+});
+
+test('pending envelope remains pending even with nested success and media', () => {
+  const task = normalizeTask({
+    task_id: 'task-pending', status: 'processing',
+    response: { success: true, data: [{ url: 'https://cdn.example/partial.png' }] }
+  });
+  expect(task.status).toBe('pending');
+  expect(task.success).toBe(false);
+  expect(task.mediaUrls).toEqual([]);
+});
+
+test('explicit nested failure takes precedence over an unfinished timestamp', () => {
+  const task = normalizeTask({
+    task_id: 'task-failed', finished_at: null,
+    response: { status: 'failed', error: { message: 'private upstream' } }
+  });
+  expect(task.status).toBe('failed');
+  expect(task.success).toBe(false);
+  expect(task.mediaUrls).toEqual([]);
+});
+
+test('nested task state remains pending despite a partial media URL', () => {
+  const task = normalizeTask({
+    task: { id: 'task-nested', state: 'queued' },
+    response: { data: [{ url: 'https://cdn.example/partial.png' }] }
+  });
+  expect(task.status).toBe('pending');
+  expect(task.mediaUrls).toEqual([]);
+});
+
+test('completed task extracts media from a JSON-string response', () => {
+  const task = normalizeTask({
+    id: 'task-complete', finished_at: 123,
+    response: JSON.stringify({ success: true, data: [{ url: 'https://cdn.example/final.png' }] })
+  });
+  expect(task.status).toBe('succeeded');
+  expect(task.mediaUrls).toEqual(['https://cdn.example/final.png']);
+});
+
+test('image count is passed through without multiplying retries', async () => {
+  const fetch = vi.fn().mockResolvedValue(new Response(JSON.stringify({ task_id: 'task-2', status: 'pending' }), { status: 200 }));
+  vi.stubGlobal('fetch', fetch);
+  await generateImage({ prompt: 'Two blue spheres', model: 'gpt-image-2', size: '1024x1024', quality: 'low', count: 2 }, 'test-key');
+  expect(fetch).toHaveBeenCalledTimes(1);
+  expect(JSON.parse(fetch.mock.calls[0][1].body).n).toBe(2);
+});
+
+test('edit submits once to the fixed service endpoint', async () => {
+  const fetch = vi.fn().mockResolvedValue(new Response(JSON.stringify({ task_id: 'edit-task', status: 'pending' }), { status: 200 }));
+  vi.stubGlobal('fetch', fetch);
+  const result = await editImage({ prompt: 'Make it blue', imageUrl: 'https://cdn.example/source.png', model: 'gpt-image-2', size: '1024x1024', quality: 'low', count: 1 }, 'test-key');
+  expect(result).toMatchObject({ taskId: 'edit-task', status: 'pending', success: false });
+  expect(fetch).toHaveBeenCalledTimes(1);
+  expect(fetch.mock.calls[0][0]).toBe('https://api.acedata.cloud/openai/images/edits');
+  expect(JSON.parse(fetch.mock.calls[0][1].body)).toMatchObject({ image: 'https://cdn.example/source.png', prompt: 'Make it blue', n: 1, async: true });
 });
