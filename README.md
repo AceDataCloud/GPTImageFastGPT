@@ -54,6 +54,8 @@ This local FastGPT run submitted **one new GPT Image task**. The first preview r
 
 For edits, **Edit image** accepts one authorized HTTPS reference image URL. It returns a task ID; connect that ID to the same **Retrieve task** tool. Editing is a separate billable submission.
 
+For several existing tasks, **Retrieve tasks** accepts 1–20 Task IDs and queries them in one read-only call. Check each item’s status; a batch is complete only when all items succeed. This does not submit new generation.
+
 ### 4. Copyable local example without a key in the repository
 
 The [sample input](examples/generate.json) contains no credentials. Create a local .secrets.local.json containing {"apiKey":"YOUR_OWN_KEY"} and run:
