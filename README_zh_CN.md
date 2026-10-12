@@ -1,13 +1,13 @@
 # Ace Data Cloud GPT 图像工具 for FastGPT
 
-[English guide](README.md) · [API 与价格](https://platform.acedata.cloud/models)
+[English guide](README.md) · [API 与价格](https://platform.acedata.cloud/models?utm_source=opensource&utm_medium=referral&utm_campaign=evergreen&utm_content=gptimagefastgpt_readme_pricing)
 
-本插件提供两个独立工具：**生成图像**与**查询任务**。生成只提交一次；后续只查询原任务 ID。异步返回任务 ID 或工作流显示成功，都不代表图片已生成。
+本插件把**生成图像**、**编辑图像**与单项／批量任务查询分开。生成只提交一次；后续只查询原任务 ID。异步返回任务 ID 或工作流显示成功，都不代表图片已生成。
 
 ## 从零开始
 
 1. 使用 FastGPT 4.15 或更新版本。在 FastGPT 的插件市场搜索 **Ace Data Cloud GPT Image**，核对作者是 **Ace Data Cloud** 后安装。市场上架前，企业版或自部署管理员可以从本仓库的源码构建 .pkg，在插件管理页上传；FastGPT 云服务目前不支持用户直接上传自定义插件。
-2. 登录 [Ace Data Cloud 应用管理](https://platform.acedata.cloud/console/applications)，打开 **General Application**。确认已开通 OpenAI generation、余额足够，并查看当期价格。直接复制 API Key；如果要单独创建 FastGPT 密钥，点击 **Manage Keys → Create**。开启 Allowed APIs 时同时允许 /openai/images/generations 与 /openai/tasks。
+2. 登录 [Ace Data Cloud 应用管理](https://platform.acedata.cloud/console/applications?utm_source=opensource&utm_medium=referral&utm_campaign=evergreen&utm_content=gptimagefastgpt_readme_api_key)，打开 **General Application**。确认已开通 OpenAI generation、余额足够，并查看当期价格。直接复制 API Key；如果要单独创建 FastGPT 密钥，点击 **Manage Keys → Create**。开启 Allowed APIs 时同时允许 /openai/images/generations 与 /openai/tasks。
 
 ![Ace Data Cloud 的真实应用密钥界面，密钥已遮挡](assets/get-api-key-en.png)
 
@@ -29,6 +29,8 @@
 编辑时选择 **Edit image**，填入一张经授权且可访问的 HTTPS 参考图片 URL。编辑会单独提交并可能计费；把返回的 Task ID 接到同一个 **Retrieve task** 查询工具。
 
 多个已有任务可用 **Retrieve tasks** 输入 1–20 个 Task ID，一次只读查询。逐项检查状态；只有全部成功时批次才算成功。此工具不会提交新生成。
+
+如果有请求的任务未返回，或返回的任务 ID 无法对应，批量结果会保持待完成。请核对已有任务 ID，不要重新提交生成。
 
 ## 本地可复制的无密钥示例
 
@@ -58,4 +60,4 @@ pnpm exec fastgpt-plugin debug . --run --tool retrieveTask --input-file examples
 | 429 | 降低并发，等待额度恢复，不自动重试付费生成。 |
 | 超时 / 5xx / 任务失败 | 先查原任务与请求记录，再决定是否重新提交；给客服 taskId 或 traceId，不给密钥。 |
 
-插件仅向 api.acedata.cloud 发送所选输入及令牌。图片生成按 [当前服务价格](https://platform.acedata.cloud/models) 计费。[源码与问题反馈](https://github.com/AceDataCloud/GPTImageFastGPT)。
+插件仅向 api.acedata.cloud 发送所选输入及令牌。图片生成按 [当前服务价格](https://platform.acedata.cloud/models?utm_source=opensource&utm_medium=referral&utm_campaign=evergreen&utm_content=gptimagefastgpt_readme_pricing) 计费。[源码与问题反馈](https://github.com/AceDataCloud/GPTImageFastGPT)。

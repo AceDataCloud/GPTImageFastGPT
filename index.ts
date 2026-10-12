@@ -114,7 +114,7 @@ const batchHandler = createToolHandler({
 export default defineToolSet({
   manifest: {
     pluginId: 'acedataGptImage',
-    version: '0.2.0',
+    version: '0.2.1',
     name: { en: 'Ace Data Cloud GPT Image', 'zh-CN': 'Ace Data Cloud GPT 图像' },
     description: {
       en: 'Generate GPT images and retrieve the same task in Ace Data Cloud.',

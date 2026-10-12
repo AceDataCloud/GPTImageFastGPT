@@ -1,8 +1,8 @@
 # Ace Data Cloud GPT Image for FastGPT
 
-Generate one image and retrieve its result in a FastGPT workflow. [简体中文](README_zh_CN.md) · [Models and current pricing](https://platform.acedata.cloud/models)
+Generate one image and retrieve its result in a FastGPT workflow. [简体中文](README_zh_CN.md) · [Models and current pricing](https://platform.acedata.cloud/models?utm_source=opensource&utm_medium=referral&utm_campaign=evergreen&utm_content=gptimagefastgpt_readme_pricing)
 
-The plugin exposes two separate tools: **Generate image** submits a generation once, and **Retrieve task** reads its existing task ID. A returned task ID or a green workflow run does not mean the image is finished.
+Use **Generate image** or **Edit image** to submit an operation once. **Retrieve task** and **Retrieve tasks** read existing task IDs. A returned task ID or a green workflow run does not mean the image is finished.
 
 ## Quick start
 
@@ -12,7 +12,7 @@ Use FastGPT 4.15 or later. In FastGPT Marketplace, search for **Ace Data Cloud G
 
 ### 2. Get an application API key
 
-1. Sign in to [Ace Data Cloud → Applications](https://platform.acedata.cloud/console/applications) and open **General Application**. Confirm **OpenAI generation** access, the current price, and sufficient balance.
+1. Sign in to [Ace Data Cloud → Applications](https://platform.acedata.cloud/console/applications?utm_source=opensource&utm_medium=referral&utm_campaign=evergreen&utm_content=gptimagefastgpt_readme_api_key) and open **General Application**. Confirm **OpenAI generation** access, the current price, and sufficient balance.
 2. Copy the existing API key using the icon marked **1** below. To create a separate FastGPT key, select **Manage Keys** marked **2**, then **Create**. Name it, set expiration or usage limits if useful, and copy the resulting key.
 3. If you enable **Allowed APIs**, include both /openai/images/generations and /openai/tasks. A service-specific key must grant this service and task query.
 
@@ -56,6 +56,8 @@ For edits, **Edit image** accepts one authorized HTTPS reference image URL. It r
 
 For several existing tasks, **Retrieve tasks** accepts 1–20 Task IDs and queries them in one read-only call. Check each item’s status; a batch is complete only when all items succeed. This does not submit new generation.
 
+A batch stays pending if a requested task is missing or a returned task ID cannot be matched. Verify the existing IDs; do not submit generation again.
+
 ### 4. Copyable local example without a key in the repository
 
 The [sample input](examples/generate.json) contains no credentials. Create a local .secrets.local.json containing {"apiKey":"YOUR_OWN_KEY"} and run:
@@ -90,4 +92,4 @@ A completed task returns status=succeeded, success=true, and one or more HTTPS i
 | 429 | Wait and reduce concurrency. Do not enable automatic paid retries. |
 | Timeout, 5xx, or failed task | Inspect the original task and request history before resubmitting. Give support the taskId or traceId, never your key. |
 
-The plugin sends your selected inputs and credential to api.acedata.cloud. Calls follow [current service pricing](https://platform.acedata.cloud/models). [Source and support](https://github.com/AceDataCloud/GPTImageFastGPT/issues).
+The plugin sends your selected inputs and credential to api.acedata.cloud. Calls follow [current service pricing](https://platform.acedata.cloud/models?utm_source=opensource&utm_medium=referral&utm_campaign=evergreen&utm_content=gptimagefastgpt_readme_pricing). [Source and support](https://github.com/AceDataCloud/GPTImageFastGPT/issues).
