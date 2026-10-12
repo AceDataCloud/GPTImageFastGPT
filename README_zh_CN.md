@@ -7,7 +7,7 @@
 ## 从零开始
 
 1. 使用 FastGPT 4.15 或更新版本。在 FastGPT 的插件市场搜索 **Ace Data Cloud GPT Image**，核对作者是 **Ace Data Cloud** 后安装。市场上架前，企业版或自部署管理员可以从本仓库的源码构建 .pkg，在插件管理页上传；FastGPT 云服务目前不支持用户直接上传自定义插件。
-2. 登录 [Ace Data Cloud 应用管理](https://platform.acedata.cloud/console/applications?utm_source=opensource&utm_medium=referral&utm_campaign=evergreen&utm_content=gptimagefastgpt_readme_api_key)，打开 **General Application**。确认已开通 OpenAI generation、余额足够，并查看当期价格。直接复制 API Key；如果要单独创建 FastGPT 密钥，点击 **Manage Keys → Create**。开启 Allowed APIs 时同时允许 /openai/images/generations 与 /openai/tasks。
+2. 登录 [Ace Data Cloud 应用管理](https://platform.acedata.cloud/console/applications?utm_source=opensource&utm_medium=referral&utm_campaign=evergreen&utm_content=gptimagefastgpt_readme_api_key)，打开 **General Application**。确认已开通 OpenAI generation、余额足够，并查看当期价格。直接复制 API Key；如果要单独创建 FastGPT 密钥，点击 **Manage Keys → Create**。开启 Allowed APIs 时同时允许 /openai/images/generations 与 /openai/tasks。使用 **Edit image** 时，还须允许 /openai/images/edits。
 
 ![Ace Data Cloud 的真实应用密钥界面，密钥已遮挡](assets/get-api-key-en.png)
 

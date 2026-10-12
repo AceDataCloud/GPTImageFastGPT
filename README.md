@@ -14,7 +14,7 @@ Use FastGPT 4.15 or later. In FastGPT Marketplace, search for **Ace Data Cloud G
 
 1. Sign in to [Ace Data Cloud → Applications](https://platform.acedata.cloud/console/applications?utm_source=opensource&utm_medium=referral&utm_campaign=evergreen&utm_content=gptimagefastgpt_readme_api_key) and open **General Application**. Confirm **OpenAI generation** access, the current price, and sufficient balance.
 2. Copy the existing API key using the icon marked **1** below. To create a separate FastGPT key, select **Manage Keys** marked **2**, then **Create**. Name it, set expiration or usage limits if useful, and copy the resulting key.
-3. If you enable **Allowed APIs**, include both /openai/images/generations and /openai/tasks. A service-specific key must grant this service and task query.
+3. If you enable **Allowed APIs**, include /openai/images/generations and /openai/tasks. To use **Edit image**, also allow /openai/images/edits. A service-specific key must grant this service and task query.
 
 ![Actual Ace Data Cloud application screen with the key redacted](assets/get-api-key-en.png)
 
