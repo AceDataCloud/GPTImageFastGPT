@@ -114,13 +114,13 @@ const batchHandler = createToolHandler({
 export default defineToolSet({
   manifest: {
     pluginId: 'acedataGptImage',
-    version: '0.2.1',
-    name: { en: 'Ace Data Cloud GPT Image', 'zh-CN': 'Ace Data Cloud GPT 图像' },
+    version: '0.2.2',
+    name: { en: 'GPT Image by Ace Data Cloud', 'zh-CN': 'GPT Image 图像 · Ace Data Cloud' },
     description: {
-      en: 'Generate GPT images and retrieve the same task in Ace Data Cloud.',
-      'zh-CN': '通过 Ace Data Cloud 生成 GPT 图像并查询同一任务。'
+      en: 'Generate and edit GPT Image pictures through Ace Data Cloud; retrieve a single task or a batch of existing tasks.',
+      'zh-CN': '通过 Ace Data Cloud 生成和编辑 GPT Image 图像，支持单项或批量查询已有任务。'
     },
-    versionDescription: { en: 'Align API limits, task status and edit actions', 'zh-CN': '对齐 API 限制和任务状态处理' },
+    versionDescription: { en: 'Service-first discovery and application token onboarding', 'zh-CN': '服务名优先的发现入口与应用令牌指引' },
     author: 'Ace Data Cloud',
     repoUrl: 'https://github.com/AceDataCloud/GPTImageFastGPT',
     tutorialUrl: 'https://github.com/AceDataCloud/GPTImageFastGPT#quick-start',
@@ -131,7 +131,7 @@ export default defineToolSet({
   children: [
     {
       id: 'generateImage',
-      name: { en: 'Generate image', 'zh-CN': '生成图像' },
+      name: { en: 'Generate GPT Image', 'zh-CN': '生成图像' },
       description: {
         en: 'Submit one GPT Image generation and return its task ID.',
         'zh-CN': '提交一次 GPT 图像生成并返回任务 ID。'
@@ -141,21 +141,21 @@ export default defineToolSet({
     },
     {
       id: 'editImage',
-      name: { en: 'Edit image', 'zh-CN': '编辑图像' },
+      name: { en: 'Edit GPT Image image', 'zh-CN': '编辑图像' },
       description: { en: 'Edit one authorized image and return its task ID.', 'zh-CN': '编辑一张经授权的图片并返回任务 ID。' },
       toolDescription: 'Submit one edit. Use Retrieve task to check its ID without editing again.',
       handler: editHandler
     },
     {
       id: 'retrieveTasks',
-      name: { en: 'Retrieve tasks', 'zh-CN': '批量查询任务' },
+      name: { en: 'Retrieve GPT Image tasks', 'zh-CN': '批量查询任务' },
       description: { en: 'Read existing task IDs without submitting a generation.', 'zh-CN': '只读查询已有任务 ID，不重新生成。' },
       toolDescription: 'Use only existing task IDs. Each item retains its own pending, failed, or succeeded state.',
       handler: batchHandler
     },
     {
       id: 'retrieveTask',
-      name: { en: 'Retrieve task', 'zh-CN': '查询任务' },
+      name: { en: 'Retrieve GPT Image task', 'zh-CN': '查询任务' },
       description: {
         en: 'Read the current status and result of an existing GPT Image task.',
         'zh-CN': '读取已有 GPT 图像任务的状态和结果。'
