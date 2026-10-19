@@ -12,7 +12,13 @@ Use **Generate GPT Image** or **Edit GPT Image image** to submit an operation on
 
 [Official FastGPT plugin Marketplace](https://cloud.fastgpt.io/config/tool/marketplace) · [Current listing review](https://github.com/labring/fastgpt-community-plugins/pull/71). This candidate is not listed yet; the review link is not an install button.
 
-Use FastGPT 4.15 or later. In FastGPT Marketplace, search for **GPT Image by Ace Data Cloud** and verify the author is **Ace Data Cloud** before installing. Until the Marketplace listing is published, an administrator of a business or self-hosted FastGPT instance can build and upload this repository's .pkg on the plugin management page. FastGPT Cloud does not currently allow users to upload custom plugins directly.
+Use FastGPT 4.15 or later. This service is not listed in the official Marketplace yet. When approved, search for **GPT Image by Ace Data Cloud** and verify the author is **Ace Data Cloud**.
+
+For a current administrator installation, download the [published .pkg and checksum](https://github.com/AceDataCloud/GPTImageFastGPT/releases/tag/v0.2.2). A system administrator can upload it through plugin management. A **team administrator or owner** can also upload/confirm a .pkg in **Tools → Add plugin → Upload plugin** if the system administrator has enabled **team plugin uploads**. That switch also controls team Marketplace installation; an ordinary team member cannot install plugins. Team and system installations use separate credentials.
+
+This is the [current official team-installation mechanism](https://github.com/labring/FastGPT/blob/main/document/content/plugin/team-installation.mdx), read on 2026-10-19. Availability on a particular Cloud workspace depends on its plan, current version, enabled features and your role; do not create another account merely because an upload control is missing. Ask that workspace's administrator which existing role/setting applies. A local/team upload is private to that installation/team and does not establish public Marketplace listing.
+
+Third-party provider listing requires a separate cooperation application under the [maintainer's current guidance](https://github.com/labring/FastGPT/pull/8017#issuecomment-6257574098). Published GitHub packages are not an endorsement or official market admission.
 
 ### 2. Get an application API key
 
