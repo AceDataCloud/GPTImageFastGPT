@@ -8,13 +8,31 @@
 
 本插件把**生成图像**、**编辑图像**与单项／批量任务查询分开。生成只提交一次；后续只查询原任务 ID。异步返回任务 ID 或工作流显示成功，都不代表图片已生成。
 
+## 完整图像模型目录
+
+生成与编辑各自提供对应公开 API 合同中的全部 24 个型号，包括 GPT Image 2.6、reverse/official 变体，以及 DALL-E、Nano Banana 兼容型号。模型和各操作的质量选项由[合同快照](../contracts/image-models.json)生成，不再单独维护手写列表。
+
+原有工具 ID 和工作流字段保持兼容。默认仍为 `gpt-image-2`、`1024x1024`、1 张图片。省略质量时，原有 GPT Image 1/1.5/2 保持以前的 `low`；新增型号不发送质量字段，采用 API 对该型号的默认值，避免把 GPT 的 low 强加给 DALL-E。显式质量保持原值，请选择该型号支持的质量与尺寸。共同的方形默认尺寸和 1 张图片适用于 DALL-E 2/3。
+
+### 同步模型目录
+
+使用既有、已校验的 PlatformBackend 合同包，或匿名读取两个公开 API 的定义：
+
+```sh
+node scripts/sync-model-catalog.mjs --bundle-dir /path/to/verified-contract-bundle
+pnpm models:refresh
+node scripts/sync-model-catalog.mjs --check
+```
+
+每天 00:35 UTC 的 `Refresh image model catalog` 工作流检查公开元数据，最多保留一份待审的目录更新 PR，沿用 Ace 开发机器人，并由正常插件 CI 验证。它不自动合并、发包、提交官方市场或生成图像；正式发布前仍需核对兼容性并更新版本。读取失败时保留已有目录。
+
 ## 从零开始
 
 [FastGPT 官方插件市场](https://cloud.fastgpt.io/config/tool/marketplace) · [本插件官方收录审核](https://github.com/labring/fastgpt-community-plugins/pull/71)。当前候选尚未上架，审核链接不是安装按钮。
 
 新用户先注册并登录 Ace；Applications 中若没有 General application，先点 **Initialize General Application**。这里创建的是 Ace API Token，不是 FastGPT 登录凭据。
 
-1. 使用 FastGPT 4.15 或更新版本。当前尚未官方上架；批准后按服务名搜索并核对作者 **Ace Data Cloud**。现有安装包与校验文件在 [GitHub 正式版本](https://github.com/AceDataCloud/GPTImageFastGPT/releases/tag/v0.2.2)。系统管理员可在插件管理上传；**团队管理员或所有者**在系统已开启“团队上传插件”时，也可从 **工具 → 添加插件 → 上传插件** 上传 .pkg，并在解析后确认安装。该开关也控制团队 Marketplace 安装，普通成员不能安装。团队与系统插件密钥独立。
+1. 使用 FastGPT 4.15 或更新版本。当前尚未官方上架；批准后按服务名搜索并核对作者 **Ace Data Cloud**。现有安装包与校验文件在 [GitHub 正式版本](https://github.com/AceDataCloud/GPTImageFastGPT/releases/latest)。系统管理员可在插件管理上传；**团队管理员或所有者**在系统已开启“团队上传插件”时，也可从 **工具 → 添加插件 → 上传插件** 上传 .pkg，并在解析后确认安装。该开关也控制团队 Marketplace 安装，普通成员不能安装。团队与系统插件密钥独立。
 
    依据为 [FastGPT 当前团队安装文档](https://github.com/labring/FastGPT/blob/main/document/content/plugin/team-installation.mdx)，读取日期2026-10-19。具体Cloud工作区能否使用，需核当前版本、套餐/功能开关和现有角色；缺按钮不等于需要另注册账号，应先问现有管理员。团队/本地上传不代表官方市场公开收录。
 
@@ -82,4 +100,4 @@ pnpm exec fastgpt-plugin debug . --run --tool retrieveTask --input-file examples
 
 ## 截图范围
 
-FastGPT 截图为 2026-10-09 的自建 4.15.8 实例，显示旧名称和0.1.0插件。它们不证明本次0.2.2新名称、普通市场安装或当前版本真实调用。
+FastGPT 截图为 2026-10-09 的自建 4.15.8 实例，显示旧名称和0.1.0插件。它们不证明本次0.2.3新名称、普通市场安装或当前版本真实调用。

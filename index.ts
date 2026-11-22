@@ -9,6 +9,7 @@ import z from 'zod';
 import type { TaskResult } from './src/client.ts';
 
 import { editImage, generateImage, retrieveTask, retrieveTasks } from './src/client.ts';
+import { GENERATION_MODELS, GENERATION_QUALITIES, EDIT_MODELS, EDIT_QUALITIES } from './src/model-catalog.ts';
 
 const secretSchema = z.object({
   apiKey: z.string().min(1).meta({
@@ -35,15 +36,16 @@ const generateHandler = createToolHandler({
       description: 'Describe one image to generate.',
       isToolParam: true
     } satisfies InputSchemaMetaType),
-    model: z.enum(['gpt-image-2', 'gpt-image-1.5', 'gpt-image-1']).default('gpt-image-2').meta({
+    model: z.enum(GENERATION_MODELS).default('gpt-image-2').meta({
       title: 'Model',
       description: 'Check access and current price before switching models.'
     } satisfies InputSchemaMetaType),
     size: z.enum(['1024x1024', '1024x1536', '1536x1024']).default('1024x1024').meta({
       title: 'Size'
     } satisfies InputSchemaMetaType),
-    quality: z.enum(['auto', 'low', 'medium', 'high']).default('low').meta({
-      title: 'Quality'
+    quality: z.enum(GENERATION_QUALITIES).optional().meta({
+      title: 'Quality',
+      description: 'Optional. Check the selected model\'s quality options and current pricing.'
     } satisfies InputSchemaMetaType),
     count: z.number().int().min(1).max(10).default(1).meta({
       title: 'Image count',
@@ -62,9 +64,9 @@ const editHandler = createToolHandler({
       description: 'An accessible HTTPS image that you may edit.'
     } satisfies InputSchemaMetaType),
     prompt: z.string().trim().min(1).max(32000).meta({ title: 'Edit prompt', isToolParam: true } satisfies InputSchemaMetaType),
-    model: z.enum(['gpt-image-2', 'gpt-image-1.5', 'gpt-image-1']).default('gpt-image-2').meta({ title: 'Model' } satisfies InputSchemaMetaType),
+    model: z.enum(EDIT_MODELS).default('gpt-image-2').meta({ title: 'Model' } satisfies InputSchemaMetaType),
     size: z.enum(['1024x1024', '1024x1536', '1536x1024']).default('1024x1024').meta({ title: 'Size' } satisfies InputSchemaMetaType),
-    quality: z.enum(['auto', 'low', 'medium', 'high']).default('low').meta({ title: 'Quality' } satisfies InputSchemaMetaType),
+    quality: z.enum(EDIT_QUALITIES).optional().meta({ title: 'Quality' } satisfies InputSchemaMetaType),
     count: z.number().int().min(1).max(10).default(1).meta({ title: 'Image count' } satisfies InputSchemaMetaType)
   }),
   outputSchema,
@@ -114,13 +116,13 @@ const batchHandler = createToolHandler({
 export default defineToolSet({
   manifest: {
     pluginId: 'acedataGptImage',
-    version: '0.2.2',
+    version: '0.2.3',
     name: { en: 'GPT Image by Ace Data Cloud', 'zh-CN': 'GPT Image 图像 · Ace Data Cloud' },
     description: {
-      en: 'Generate and edit GPT Image pictures through Ace Data Cloud; retrieve a single task or a batch of existing tasks.',
-      'zh-CN': '通过 Ace Data Cloud 生成和编辑 GPT Image 图像，支持单项或批量查询已有任务。'
+      en: 'Generate and edit images using the published Ace Data Cloud image API models; retrieve a single task or existing task batch.',
+      'zh-CN': '使用 Ace Data Cloud 图像 API 已公布的模型生成和编辑图像，支持单项或批量查询已有任务。'
     },
-    versionDescription: { en: 'Service-first discovery and application token onboarding', 'zh-CN': '服务名优先的发现入口与应用令牌指引' },
+    versionDescription: { en: 'Complete generated image model catalog with preserved workflow defaults', 'zh-CN': '补齐自动生成的图像模型目录，保留已有工作流默认行为' },
     author: 'Ace Data Cloud',
     repoUrl: 'https://github.com/AceDataCloud/GPTImageFastGPT',
     tutorialUrl: 'https://github.com/AceDataCloud/GPTImageFastGPT#quick-start',
