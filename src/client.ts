@@ -13,6 +13,23 @@ const succeeded = new Set(['succeeded', 'success', 'completed', 'complete', 'fin
 const failed = new Set(['failed', 'failure', 'error', 'cancelled', 'canceled', 'rejected']);
 const pending = new Set(['pending', 'queued', 'processing', 'running', 'in_progress', 'accepted', 'submitted', 'waiting']);
 const mediaKeys = new Set(['url', 'image_url', 'media_url', 'file_url']);
+// Preserve the omitted-quality behavior of workflows created before catalog expansion.
+const legacyModels = new Set(['gpt-image-1', 'gpt-image-1.5', 'gpt-image-2']);
+
+type ImageInput = { prompt: string; model: string; size: string; quality?: string | undefined; count: number };
+
+function imagePayload(input: ImageInput): JsonObject {
+  const quality = input.quality ?? (legacyModels.has(input.model) ? 'low' : undefined);
+  return {
+    prompt: input.prompt,
+    model: input.model,
+    size: input.size,
+    ...(quality === undefined ? {} : { quality }),
+    n: input.count,
+    async: true,
+    response_format: 'url'
+  };
+}
 
 function object(value: unknown): JsonObject | null {
   return value && typeof value === 'object' && !Array.isArray(value)
@@ -102,18 +119,10 @@ async function request(path: string, apiKey: string, payload: JsonObject): Promi
 }
 
 export async function generateImage(
-  input: { prompt: string; model: string; size: string; quality: string; count: number },
+  input: ImageInput,
   apiKey: string
 ): Promise<TaskResult> {
-  const body = await request('/openai/images/generations', apiKey, {
-    prompt: input.prompt,
-    model: input.model,
-    size: input.size,
-    quality: input.quality,
-    n: input.count,
-    async: true,
-    response_format: 'url'
-  });
+  const body = await request('/openai/images/generations', apiKey, imagePayload(input));
   const result = normalizeTask(body);
   if (result.status === 'pending' && !result.taskId) {
     throw new Error('Generation was accepted without a task ID. Check request history before retrying.');
@@ -122,18 +131,12 @@ export async function generateImage(
 }
 
 export async function editImage(
-  input: { prompt: string; imageUrl: string; model: string; size: string; quality: string; count: number },
+  input: ImageInput & { imageUrl: string },
   apiKey: string
 ): Promise<TaskResult> {
   const body = await request('/openai/images/edits', apiKey, {
-    image: input.imageUrl,
-    prompt: input.prompt,
-    model: input.model,
-    size: input.size,
-    quality: input.quality,
-    n: input.count,
-    async: true,
-    response_format: 'url'
+    ...imagePayload(input),
+    image: input.imageUrl
   });
   const result = normalizeTask(body);
   if (result.status === 'pending' && !result.taskId) {

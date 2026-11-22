@@ -1,6 +1,6 @@
 {
   "name": "fastgpt-plugin-acedata-gpt-image",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Ace Data Cloud GPT Image tools for FastGPT",
   "type": "module",
   "main": "dist/index.js",
@@ -8,7 +8,9 @@
     "build": "fastgpt-plugin build --minify",
     "check": "fastgpt-plugin check --entry . --output ./dist",
     "pack": "fastgpt-plugin pack",
+    "pretest": "node scripts/sync-model-catalog.mjs --check",
     "test": "vitest run",
+    "models:refresh": "node scripts/sync-model-catalog.mjs --refresh",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {},

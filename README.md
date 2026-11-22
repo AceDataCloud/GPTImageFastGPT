@@ -6,6 +6,24 @@ Generate one image and retrieve its result in a FastGPT workflow. [简体中文]
 
 Use **Generate GPT Image** or **Edit GPT Image image** to submit an operation once. **Retrieve GPT Image task** and **Retrieve GPT Image tasks** read existing task IDs. A returned task ID or a green workflow run does not mean the image is finished.
 
+## Published image model catalog
+
+Both generation and editing expose all 24 model IDs in their current public image API contracts, including GPT Image 2.6, reverse/official variants, DALL-E and Nano Banana compatibility IDs. The choices and operation-specific quality options are generated from [the contract snapshot](contracts/image-models.json), not maintained as separate handwritten lists.
+
+Existing tool IDs and workflow fields are unchanged. The default model remains `gpt-image-2`, size `1024x1024` and count `1`. When quality is omitted, the original GPT Image 1/1.5/2 models retain their previous `low` setting. Newly added models omit quality and use the API's model-specific default, so DALL-E is not forced to use an unsupported GPT quality. Explicit quality is preserved; select a quality and size supported by that model. The common default square size and one image are valid for DALL-E 2 and DALL-E 3.
+
+### Refreshing the source catalog
+
+Use the existing verified PlatformBackend contract bundle, or read the two public API contracts without a credential:
+
+```sh
+node scripts/sync-model-catalog.mjs --bundle-dir /path/to/verified-contract-bundle
+pnpm models:refresh
+node scripts/sync-model-catalog.mjs --check
+```
+
+The daily `Refresh image model catalog` workflow checks public metadata at 00:35 UTC. It keeps at most one pending catalog-update PR, uses the existing Ace development bot, and lets normal plugin CI validate the proposed update. It does not merge, release a package, update the official marketplace, or call image generation. Review compatibility and bump the release version before publishing a catalog update. A failed metadata request preserves the existing catalog.
+
 ## Quick start
 
 ### 1. Install the plugin
@@ -14,7 +32,7 @@ Use **Generate GPT Image** or **Edit GPT Image image** to submit an operation on
 
 Use FastGPT 4.15 or later. This service is not listed in the official Marketplace yet. When approved, search for **GPT Image by Ace Data Cloud** and verify the author is **Ace Data Cloud**.
 
-For a current administrator installation, download the [published .pkg and checksum](https://github.com/AceDataCloud/GPTImageFastGPT/releases/tag/v0.2.2). A system administrator can upload it through plugin management. A **team administrator or owner** can also upload/confirm a .pkg in **Tools → Add plugin → Upload plugin** if the system administrator has enabled **team plugin uploads**. That switch also controls team Marketplace installation; an ordinary team member cannot install plugins. Team and system installations use separate credentials.
+For a current administrator installation, download the [published .pkg and checksum](https://github.com/AceDataCloud/GPTImageFastGPT/releases/latest). A system administrator can upload it through plugin management. A **team administrator or owner** can also upload/confirm a .pkg in **Tools → Add plugin → Upload plugin** if the system administrator has enabled **team plugin uploads**. That switch also controls team Marketplace installation; an ordinary team member cannot install plugins. Team and system installations use separate credentials.
 
 This is the [current official team-installation mechanism](https://github.com/labring/FastGPT/blob/main/document/content/plugin/team-installation.mdx), read on 2026-10-19. Availability on a particular Cloud workspace depends on its plan, current version, enabled features and your role; do not create another account merely because an upload control is missing. Ask that workspace's administrator which existing role/setting applies. A local/team upload is private to that installation/team and does not establish public Marketplace listing.
 
@@ -114,4 +132,4 @@ The plugin sends your selected inputs and credential to api.acedata.cloud. Calls
 
 ## Screenshot scope
 
-FastGPT screenshots below/above are real self-hosted FastGPT 4.15.8 test captures from 2026-10-09. They show the earlier display names and plugin 0.1.0. Current 0.2.2 service-first names and Marketplace installation are not established by those historical images.
+FastGPT screenshots below/above are real self-hosted FastGPT 4.15.8 test captures from 2026-10-09. They show the earlier display names and plugin 0.1.0. Current 0.2.3 model choices and service-first names and Marketplace installation are not established by those historical images.

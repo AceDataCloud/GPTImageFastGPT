@@ -1,0 +1,57 @@
+name: Refresh image model catalog
+
+on:
+  schedule:
+    - cron: '35 0 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: image-model-catalog
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.BOT_GITHUB_TOKEN }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - id: queue
+        env:
+          GH_TOKEN: ${{ secrets.BOT_GITHUB_TOKEN }}
+        run: |
+          test "$(gh api user --jq .login)" = 'acedatacloud-dev'
+          count=$(gh pr list --state open --json headRefName --jq '[.[] | select(.headRefName | startswith("automation/image-model-catalog-"))] | length')
+          echo "pending=$count" >> "$GITHUB_OUTPUT"
+      - if: steps.queue.outputs.pending == '0'
+        run: node scripts/sync-model-catalog.mjs --refresh
+      - id: changes
+        if: steps.queue.outputs.pending == '0'
+        run: |
+          if git diff --quiet -- contracts/image-models.json src/model-catalog.ts; then
+            echo 'changed=false' >> "$GITHUB_OUTPUT"
+          else
+            echo 'changed=true' >> "$GITHUB_OUTPUT"
+          fi
+      - if: steps.changes.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.BOT_GITHUB_TOKEN }}
+        run: |
+          branch="automation/image-model-catalog-${GITHUB_RUN_ID}"
+          git config user.name 'Ace Data Cloud Dev'
+          git config user.email 'dev@acedata.cloud'
+          git switch -c "$branch"
+          git add contracts/image-models.json src/model-catalog.ts
+          git commit -m 'chore: refresh published image model catalog'
+          git push origin "$branch"
+          cat > /tmp/model-catalog-body.md <<'BODY'
+          Refresh the generated choices from the two public image API contracts. The normal plugin CI validates this bot-authored PR. Review new model requirements and bump the plugin release version before packaging or updating the official marketplace submission. This workflow does not merge, release, or run image generation.
+          BODY
+          gh pr create --draft --base main --head "$branch" --title 'chore: refresh published image model catalog' --body-file /tmp/model-catalog-body.md
